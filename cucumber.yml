@@ -1,0 +1,3 @@
+full: --tags @manager_user -p html_report
+smoke: --tag @acceptance --tags 'not @not_implemented'
+html_report: --format pretty --format html --out=features_report.html
