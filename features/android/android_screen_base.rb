@@ -6,9 +6,9 @@ class AndroidScreenBase < Calabash::ABase
   end
 
   class << self
-    alias_method :value, :element
-    alias_method :action, :element
-    alias_method :trait, :element
+    alias value element
+    alias action element
+    alias trait element
   end
 
   def restart_app
@@ -36,9 +36,9 @@ class AndroidScreenBase < Calabash::ABase
       # Do the same as the method above, but throws an exception
       # if the field is not visible
       field_name = method.to_s.sub('_visible!', '')
-                       .sub('_field', '')
-                       .sub('_', ' ')
-                       .capitalize
+                         .sub('_field', '')
+                         .sub('_', ' ')
+                         .capitalize
       raise ElementNotFoundError, "ID: #{field_name}" unless
           visible? public_send(method.to_s.sub('_visible!', ''))
     else
@@ -50,13 +50,13 @@ class AndroidScreenBase < Calabash::ABase
     query = "* id:'#{id}'" if query.nil?
     begin
       wait_for(timeout: 3) { element_exists query }
-    rescue
+    rescue StandardError
       return false
     end
     true
   end
 
-  element(:loading_screen)      { 'insert_loading_view_id' }
+  element(:loading_screen) { 'insert_loading_view_id' }
 
   # The progress bar of the application is a custom view
   def wait_for_progress
@@ -68,15 +68,15 @@ class AndroidScreenBase < Calabash::ABase
   def drag_to(direction)
     positions = [0, 0, 0, 0] # [ 'from_x', 'to_x', 'from_y', 'to_y' ]
 
-    case(direction)
+    case direction
     when :down
-      positions = [30,30,60,30]
+      positions = [30, 30, 60, 30]
     when :up
-      positions = [80,80,60,90]
+      positions = [80, 80, 60, 90]
     when :left
-      positions = [90,20,80,80]
+      positions = [90, 20, 80, 80]
     when :right
-      positions = [20,90,80,80]
+      positions = [20, 90, 80, 80]
     else
       raise 'Direction not known!'
     end
@@ -97,11 +97,11 @@ class AndroidScreenBase < Calabash::ABase
     i = 0
 
     element_query = ''
-    if query.nil?
-      element_query = "* marked:'#{element}'"
-    else
-      element_query = query
-    end
+    element_query = if query.nil?
+                      "* marked:'#{element}'"
+                    else
+                      query
+                    end
 
     sleep(2)
     while !element_exists(element_query) && i < limit
@@ -109,9 +109,10 @@ class AndroidScreenBase < Calabash::ABase
       i += 1
     end
 
-    fail "Executed #{limit} moviments #{direction} and "\
-          "the element '#{element}' was not found on this view!" unless
-        i < limit
+    unless i < limit
+      raise "Executed #{limit} moviments #{direction} and "\
+            "the element '#{element}' was not found on this view!"
+    end
   end
 
   def drag_for_specified_number_of_times(direction, times)
@@ -123,7 +124,7 @@ class AndroidScreenBase < Calabash::ABase
   # Negation indicates that we want a page that doesn't
   # has the message passed as parameter
   def is_on_page?(page_text, negation = '')
-    fail 'Error! Invalid query string!' if
+    raise 'Error! Invalid query string!' if
         page_text.to_s == ''
 
     should_not_have_exception = false
@@ -133,16 +134,16 @@ class AndroidScreenBase < Calabash::ABase
       # If negation is not nil, we should raise an error
       # if this message was found on the view
       should_not_have_exception = true unless negation == ''
-    rescue
+    rescue StandardError
       # only raise exception if negation is nil,
       # otherwise this is the expected behaviour
       should_have_exception = true if negation == ''
     end
 
-    fail "Unexpected Page. The page should not have: '#{page_text}'" if
+    raise "Unexpected Page. The page should not have: '#{page_text}'" if
         should_not_have_exception
 
-    fail "Unexpected Page. Expected was: '#{page_text}'" if
+    raise "Unexpected Page. Expected was: '#{page_text}'" if
         should_have_exception
   end
 
@@ -159,7 +160,7 @@ class AndroidScreenBase < Calabash::ABase
     begin
       wait_for(timeout: 5) { element_exists(query) }
       touch(query)
-    rescue => e
+    rescue StandardError => e
       raise "Problem in touch screen element: '#{element}'\nError Message: #{e.message}"
     end
   end

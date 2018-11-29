@@ -1,3 +1,5 @@
-full: --tags @manager_user -p html_report
-smoke: --tag @acceptance --tags 'not @not_implemented'
+manager_users: --tags @manager_user -p html_report
 html_report: --format pretty --format html --out=features_report.html
+create_user: --tags @create_user
+consult_user: --tags @consult_user
+delete_user: --tags @delete_user
